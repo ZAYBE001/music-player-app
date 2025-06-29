@@ -13,7 +13,14 @@ import cloudinary.uploader
 from datetime import datetime
 
 app = Flask(__name__)
-CORS(app)
+
+# Updated CORS configuration for production
+CORS(app, origins=[
+    "http://localhost:5173",  # Local development
+    "http://localhost:3000",  # Alternative local port
+    "https://music-player-app-frontend.onrender.com",  # Your frontend URL (update this)
+    "https://*.onrender.com",  # Allow all Render subdomains
+])
 
 # Configuration
 UPLOAD_FOLDER = 'uploads'
@@ -395,9 +402,14 @@ def remove_from_playlist(playlist_id, song_id):
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
-    return jsonify({'status': 'healthy', 'message': 'Music Player API is running'})
+    return jsonify({
+        'status': 'healthy', 
+        'message': 'Music Player API is running',
+        'version': '1.0.0',
+        'timestamp': datetime.now().isoformat()
+    })
 
 if __name__ == '__main__':
     init_db()
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=False)  # Set debug=False for production
